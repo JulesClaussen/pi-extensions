@@ -1,0 +1,30 @@
+{
+  "name": "@jules/pi-extensions",
+  "version": "0.1.0",
+  "description": "Personal pi extensions: GitHub command guard.",
+  "type": "module",
+  "keywords": ["pi-package", "pi-extension", "coding-agent"],
+  "license": "MIT",
+  "author": "jules",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "pi": {
+    "extensions": ["extensions/*/index.ts"]
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.13",
+    "@types/node": "^24.0.0",
+    "@typescript/native-preview": "latest",
+    "tsx": "^4.19.2"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*"
+  },
+  "scripts": {
+    "test": "node --import tsx --test 'extensions/**/*.test.ts'",
+    "typecheck": "tsgo -p tsconfig.json",
+    "lint": "biome check .",
+    "fmt": "biome format --write ."
+  }
+}
