@@ -5,6 +5,7 @@ Personal extensions for [pi](https://github.com/earendil-works/pi).
 | Extension | Purpose |
 | --- | --- |
 | `command-guard` | Pins the agent to the `*-dev` (DeveloperAccess) AWS role and gates GitHub, git, AWS, terragrunt, kubectl, helm and docker commands: reads run, risky actions ask, writes to infra are denied. |
+| `modes` | `apply` / `chat` / `plan` working modes: chat asks before every edit, write and non-read-only shell command; plan hands over to Plannotator. |
 
 ## Install
 
@@ -62,6 +63,18 @@ The guard classifies command lines; it is not a sandbox. `make deploy`, `npm run
 - `/command-guard <command>` — dry-run the classifier
 
 Edit `PROTECTED_BRANCHES` (`rules/git.ts`) or `DEV_PROFILE` (`types.ts`) to change the protected branch list or the accepted profile suffix.
+
+## modes
+
+Switch with `/mode [apply|chat|plan]`, `/mode` alone or `Ctrl+Alt+M` (cycles apply → chat → plan). Sessions start in `apply`; the mode is persisted per session and shown in the footer. command-guard keeps running in every mode — `modes` only adds prompts, it never loosens a guard verdict.
+
+| Mode | `edit` / `write` | `bash` | MCP and other tools |
+| --- | --- | --- | --- |
+| `apply` | run | run | run |
+| `chat` | ask (Allow once / Allow for session / Deny), with a diff preview | ask unless every command position is read-only (`ls`, `cat`, `rg`, `git status/log/diff`, `gh pr view`, `kubectl get`, … — no redirections, no `sed -i`, no unknown commands) | run |
+| `plan` | Plannotator planning mode | Plannotator planning mode | run |
+
+In `chat` the model is also told that the user wants to discuss rather than act. Entering `plan` calls Plannotator's plan mode; approving the plan switches to `apply`, leaving Plannotator without approval falls back to `chat`. If Plannotator is not installed, `plan` degrades to `chat` with a warning. Without a UI (headless runs) anything that would ask is blocked.
 
 ## Development
 
