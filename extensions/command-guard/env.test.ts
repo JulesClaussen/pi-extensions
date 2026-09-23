@@ -3,26 +3,26 @@ import { describe, it } from "node:test";
 import { filterAwsConfig, rewriteKubeconfig } from "./env.ts";
 
 const AWS_CONFIG = `
-[sso-session stoik]
+[sso-session acme]
 sso_region = eu-west-1
-sso_start_url = https://stoik.awsapps.com/start/#/
+sso_start_url = https://acme.awsapps.com/start/#/
 
 [default]
 region = eu-west-1
 
-[profile stoik-product-prod-admin]
-sso_session = stoik
+[profile acme-product-prod-admin]
+sso_session = acme
 sso_role_name = AdministratorAccess
 
-[profile stoik-product-prod-dev]
-sso_session = stoik
+[profile acme-product-prod-dev]
+sso_session = acme
 sso_role_name = DeveloperAccess
 
-[profile stoik-cyber-infra-dev-dev-euw3]
-sso_session = stoik
+[profile acme-cyber-infra-dev-dev-euw3]
+sso_session = acme
 region = eu-west-3
 
-[profile stoik-root-admin]
+[profile acme-root-admin]
 sso_role_name = AdministratorAccess
 `;
 
@@ -30,9 +30,9 @@ describe("filterAwsConfig", () => {
 	it("keeps only *-dev profiles and sso-session blocks", () => {
 		const { text, profiles } = filterAwsConfig(AWS_CONFIG);
 		assert.equal(profiles, 2);
-		assert.match(text, /\[sso-session stoik\]/);
-		assert.match(text, /\[profile stoik-product-prod-dev\]/);
-		assert.match(text, /\[profile stoik-cyber-infra-dev-dev-euw3\]/);
+		assert.match(text, /\[sso-session acme\]/);
+		assert.match(text, /\[profile acme-product-prod-dev\]/);
+		assert.match(text, /\[profile acme-cyber-infra-dev-dev-euw3\]/);
 		assert.doesNotMatch(text, /admin/);
 		assert.doesNotMatch(text, /\[default\]/);
 		assert.doesNotMatch(text, /AdministratorAccess/);
@@ -49,24 +49,24 @@ describe("rewriteKubeconfig", () => {
 						exec: {
 							command: "aws",
 							args: ["eks", "get-token"],
-							env: [{ name: "AWS_PROFILE", value: "stoik-product-prod-admin" }],
+							env: [{ name: "AWS_PROFILE", value: "acme-product-prod-admin" }],
 						},
 					},
 				},
 				{
 					name: "b",
-					user: { exec: { command: "aws", args: ["--profile", "stoik-cert-prod-admin", "eks", "get-token"] } },
+					user: { exec: { command: "aws", args: ["--profile", "acme-cert-prod-admin", "eks", "get-token"] } },
 				},
 				{
 					name: "c",
-					user: { exec: { command: "aws", env: [{ name: "AWS_PROFILE", value: "stoik-cert-prod-dev" }] } },
+					user: { exec: { command: "aws", env: [{ name: "AWS_PROFILE", value: "acme-cert-prod-dev" }] } },
 				},
 				{ name: "orbstack", user: {} },
 			],
 		});
 		assert.equal(users, 3);
-		assert.equal(config.users?.[0].user?.exec?.env?.[0].value, "stoik-product-prod-dev");
-		assert.equal(config.users?.[1].user?.exec?.args?.[1], "stoik-cert-prod-dev");
-		assert.equal(config.users?.[2].user?.exec?.env?.[0].value, "stoik-cert-prod-dev");
+		assert.equal(config.users?.[0].user?.exec?.env?.[0].value, "acme-product-prod-dev");
+		assert.equal(config.users?.[1].user?.exec?.args?.[1], "acme-cert-prod-dev");
+		assert.equal(config.users?.[2].user?.exec?.env?.[0].value, "acme-cert-prod-dev");
 	});
 });

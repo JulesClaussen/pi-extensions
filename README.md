@@ -11,7 +11,7 @@ Personal extensions for [pi](https://github.com/earendil-works/pi).
 From a local checkout (loaded in place, no copy):
 
 ```sh
-pi install /Users/jules/Documents/perso/pi-extensions
+pi install /path/to/pi-extensions
 ```
 
 Then `/reload` in pi. Update by pulling the checkout.

@@ -14,7 +14,7 @@ describe("helm", () => {
 			"helm show values bitnami/redis",
 			"helm show chart ./chart",
 			"helm template api ./chart -f values.yaml",
-			"helm template api ./chart --kube-context stoik-product-prod",
+			"helm template api ./chart --kube-context acme-product-prod",
 			"helm lint ./chart",
 			"helm pull bitnami/redis --untar",
 			"helm package ./chart",

@@ -29,7 +29,7 @@ describe("scripts and inline interpreters", () => {
 			'python3 -c \'import boto3; boto3.client("s3").delete_bucket(Bucket="x")\'',
 			'python3 -c \'import os; os.environ["AWS_CONFIG_FILE"]="/Users/x/.aws/config"\'',
 			"node -e 'require(\"@aws-sdk/client-s3\")'",
-			"node -e 'process.env.AWS_PROFILE=\"stoik-x-admin\"'",
+			"node -e 'process.env.AWS_PROFILE=\"acme-x-admin\"'",
 			"ruby -e 'system(\"kubectl delete ns x\")'",
 			'python3 -c \'import subprocess; subprocess.run(["terragrunt","apply"])\'',
 		]));

@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import { expectAll, makeContext } from "./test-helpers.ts";
 
-const dev = makeContext({ env: { AWS_PROFILE: "stoik-cyber-infra-prod-dev" } });
+const dev = makeContext({ env: { AWS_PROFILE: "acme-cyber-infra-prod-dev" } });
 const none = makeContext({ env: {} });
 
 describe("terragrunt", () => {
@@ -36,7 +36,7 @@ describe("terragrunt", () => {
 				"terragrunt info",
 				"terragrunt dag graph",
 				"cd infrastructure/terraform/prod && terragrunt plan",
-				"AWS_PROFILE=stoik-data-prod-dev terragrunt plan",
+				"AWS_PROFILE=acme-data-prod-dev terragrunt plan",
 			],
 			dev,
 		));
@@ -77,8 +77,8 @@ describe("terragrunt", () => {
 			"deny",
 			[
 				"terragrunt plan",
-				"AWS_PROFILE=stoik-cyber-infra-prod-admin terragrunt plan",
-				"asp stoik-x-admin && terragrunt plan",
+				"AWS_PROFILE=acme-cyber-infra-prod-admin terragrunt plan",
+				"asp acme-x-admin && terragrunt plan",
 			],
 			none,
 		);

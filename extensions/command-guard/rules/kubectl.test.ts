@@ -7,7 +7,7 @@ describe("kubectl", () => {
 			"kubectl get pods -A",
 			"kubectl get pods -n kube-system -o wide",
 			"kubectl get deploy api -o yaml",
-			"kubectl get pods --context stoik-product-prod",
+			"kubectl get pods --context acme-product-prod",
 			"kubectl describe pod api-123 -n app",
 			"kubectl logs -f deploy/api -n app --tail=100",
 			"kubectl logs api-123 -c sidecar --since=1h",
@@ -28,7 +28,7 @@ describe("kubectl", () => {
 			"kubectl rollout history deploy/api",
 			"kubectl config get-contexts",
 			"kubectl config current-context",
-			"kubectl config use-context stoik-product-staging",
+			"kubectl config use-context acme-product-staging",
 			"kubectl config view",
 			"kubectl apply -f m.yaml --dry-run=server",
 			"kubectl apply -f m.yaml --dry-run=client -o yaml",
@@ -36,7 +36,7 @@ describe("kubectl", () => {
 			"kubectl kustomize overlays/prod",
 			"kubectl get pods | grep Running | wc -l",
 			"kubectl get pods -A | grep -v Running",
-			"kubectx stoik-product-prod",
+			"kubectx acme-product-prod",
 			"kubens app",
 		]));
 

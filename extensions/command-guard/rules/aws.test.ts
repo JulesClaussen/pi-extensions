@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import { expectAll, makeContext } from "./test-helpers.ts";
 
-const dev = makeContext({ env: { AWS_PROFILE: "stoik-product-prod-dev" } });
+const dev = makeContext({ env: { AWS_PROFILE: "acme-product-prod-dev" } });
 const none = makeContext({ env: {} });
 
 describe("aws profile", () => {
@@ -10,11 +10,11 @@ describe("aws profile", () => {
 			"allow",
 			[
 				"aws sts get-caller-identity",
-				"AWS_PROFILE=stoik-cert-staging-dev aws s3 ls",
-				"aws --profile stoik-cyber-infra-dev-dev-euw3 ec2 describe-instances",
-				"aws ec2 describe-instances --profile=stoik-data-prod-dev",
-				"asp stoik-product-prod-dev && aws s3 ls",
-				"export AWS_PROFILE=stoik-product-prod-dev; aws s3 ls",
+				"AWS_PROFILE=acme-cert-staging-dev aws s3 ls",
+				"aws --profile acme-cyber-infra-dev-dev-euw3 ec2 describe-instances",
+				"aws ec2 describe-instances --profile=acme-data-prod-dev",
+				"asp acme-product-prod-dev && aws s3 ls",
+				"export AWS_PROFILE=acme-product-prod-dev; aws s3 ls",
 			],
 			dev,
 		));
@@ -23,15 +23,15 @@ describe("aws profile", () => {
 		expectAll(
 			"deny",
 			[
-				"AWS_PROFILE=stoik-product-prod-admin aws s3 ls",
-				"aws --profile stoik-root-admin sts get-caller-identity",
-				"aws s3 ls --profile stoik-ops-prod-admin",
-				"asp stoik-product-prod-admin",
-				"asp stoik-product-prod-admin && aws s3 ls",
-				"export AWS_PROFILE=stoik-x-admin && aws s3 ls",
+				"AWS_PROFILE=acme-product-prod-admin aws s3 ls",
+				"aws --profile acme-root-admin sts get-caller-identity",
+				"aws s3 ls --profile acme-ops-prod-admin",
+				"asp acme-product-prod-admin",
+				"asp acme-product-prod-admin && aws s3 ls",
+				"export AWS_PROFILE=acme-x-admin && aws s3 ls",
 				"aws s3 ls",
 			],
-			makeContext({ env: { AWS_PROFILE: "stoik-product-prod-admin" } }),
+			makeContext({ env: { AWS_PROFILE: "acme-product-prod-admin" } }),
 		));
 
 	it("denies credential and config overrides", () =>
@@ -56,7 +56,7 @@ describe("aws profile", () => {
 		await expectAll(
 			"allow",
 			[
-				"aws sso login --sso-session stoik",
+				"aws sso login --sso-session acme",
 				"aws configure list",
 				"aws configure list-profiles",
 				"aws --version",

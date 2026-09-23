@@ -14,7 +14,7 @@ const branches: Record<string, string | null> = {
 export const files: Record<string, string> = {
 	"/repo/scripts/clean.sh": "#!/bin/bash\nrm -rf dist\nnpm run build\n",
 	"/repo/scripts/deploy.sh": "#!/bin/bash\naws s3 sync dist s3://bucket\n",
-	"/repo/scripts/sneaky.sh": "#!/bin/bash\nexport AWS_PROFILE=stoik-x-admin\n",
+	"/repo/scripts/sneaky.sh": "#!/bin/bash\nexport AWS_PROFILE=acme-x-admin\n",
 	"/repo/tool.py": "import boto3\n",
 };
 
