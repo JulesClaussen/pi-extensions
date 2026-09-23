@@ -2,6 +2,8 @@
 
 Personal pi extensions. Each extension lives in `extensions/<name>/index.ts` and is discovered through the `pi.extensions` glob in `package.json`.
 
+`command-guard` is structured as `shell.ts` (parser) → `rules/<tool>.ts` (one pure classifier per tool, each with `<tool>.test.ts`) → `policy.ts` (segment walk + aggregation) → `index.ts` (hooks, prompt, `/command-guard`). `env.ts` owns the identity layer. Add a tool by adding a rule file, wiring it in `policy.ts` and writing its test table.
+
 ## Conventions
 
 - Keep decision logic in pure modules (`rules.ts`) with no pi imports so it is unit-testable; `index.ts` only wires hooks, UI and commands.
