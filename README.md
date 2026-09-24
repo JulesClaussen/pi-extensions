@@ -46,7 +46,7 @@ Every command position is classified (`&&`, `;`, `|`, `$( )`, `bash -c`, `sudo`/
 | `kubectl` | `get/describe/logs/top/explain/events/diff/wait/port-forward`, `auth can-i/whoami`, `rollout status/history`, `config get-contexts/current-context/use-context/view`, `--dry-run=client\|server`, `kubectx`/`kubens` | `get/describe secret*`, `get --raw`, `config view --raw`, unknown verbs (plugins) | all writes (`apply/create/delete/edit/patch/scale/exec/cp/debug/run/drain/rollout restart…`), `--kubeconfig`, `KUBECONFIG=`, `--as`, `--token/--server` |
 | `helm` | `list/status/history/search/show/template/lint/pull/package/create`, `repo list/add/update`, `dependency *`, `plugin list` | `helm get *`, unknown commands | `install/upgrade/uninstall/rollback/test/push`, `registry login`, `repo remove`, `plugin install`, `--post-renderer`, `--kubeconfig`, identity overrides |
 | `docker` | build/run/ps/logs/inspect/pull/start/stop, `compose up/down/build/logs`, `system df` | `rm/rmi/prune`, `volume/network rm`, `compose down -v/--rmi`, `--remove-orphans`, `exec`, `compose exec/run`, `--privileged`, `--pid/--cap-add/--device`, docker-socket or `/` mounts, `push/login/logout`, swarm/service/context, mutations via `--context/-H/DOCKER_HOST` | — |
-| scripts | — | `bash x.sh`, `./x.sh`, `python x.py`, `python -c`, `node -e` … whose content mentions `aws/kubectl/helm/terragrunt/terraform`, `-admin`, `AWS_*`/`KUBECONFIG`, `.aws/`, `.kube/`, `boto3`, `@aws-sdk`, `kubernetes` | — |
+| scripts | — | `bash x.sh`, `./x.sh`, `python x.py`, `python -c`, `node -e` … whose content references a credential override (`AWS_CONFIG_FILE`, `AWS_SHARED_CREDENTIALS_FILE`, `AWS_ACCESS_KEY_ID`, …), `KUBECONFIG`, `.aws/`, `.kube/` or `sso/cache` — the reason names the token and line | — |
 | indirection | — | `eval …`, `$VAR …` mentioning a guarded tool | — |
 
 ### Protected paths (`bash`, `edit`, `write`)
@@ -55,7 +55,7 @@ Every command position is classified (`&&`, `;`, `|`, `$( )`, `bash -c`, `sudo`/
 
 ### Limits
 
-The guard classifies command lines; it is not a sandbox. `make deploy`, `npm run deploy` and compiled programs are not inspected — they still inherit the `*-dev` identity, which is the real boundary. Deliberately hardcoding `AWS_CONFIG_FILE=~/.aws/config` inside a script would bypass the env layer; the script scan asks on such mentions but cannot catch every encoding.
+The guard classifies command lines; it is not a sandbox. `make deploy`, `npm run deploy` and compiled programs are not inspected — they still inherit the `*-dev` identity, which is the real boundary. Deliberately hardcoding `AWS_CONFIG_FILE=~/.aws/config` inside a script would bypass the env layer; the script scan asks on such mentions but cannot catch every encoding. Scripts that merely call `aws`/`kubectl`/`terragrunt` or import `boto3` are not flagged: they inherit the `*-dev` identity like everything else.
 
 ### Commands
 

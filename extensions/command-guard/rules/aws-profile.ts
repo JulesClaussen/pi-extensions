@@ -9,7 +9,7 @@
 import { flagValue } from "../shell.ts";
 import { type Command, deny, type Finding, isDevProfile, type RuleContext } from "../types.ts";
 
-const CREDENTIAL_OVERRIDES = [
+export const CREDENTIAL_OVERRIDES = [
 	"AWS_ACCESS_KEY_ID",
 	"AWS_SECRET_ACCESS_KEY",
 	"AWS_SESSION_TOKEN",

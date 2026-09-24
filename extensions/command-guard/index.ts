@@ -11,7 +11,8 @@
  *   - kubectl / helm: reads run, secret reads ask, writes denied
  *   - docker: removal, pruning, privileged/host-escaping containers, registry writes ask
  *   - ~/.aws, ~/.kube, generated configs, guard sources and pi settings: never written
- *   - local scripts and inline interpreter code mentioning infra tooling: ask
+ *   - local scripts and inline interpreter code that could bypass the env layer
+ *     (credential env vars, KUBECONFIG, ~/.aws, ~/.kube, SSO cache): ask
  *
  * An environment layer pins the process tree to the *-dev role (see env.ts).
  * Without a UI (headless runs) anything that would ask is blocked instead.

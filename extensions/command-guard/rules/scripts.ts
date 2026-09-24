@@ -1,17 +1,19 @@
 /**
- * Scripts and inline interpreters: the guard cannot classify what a script
- * does, so directly executed local scripts and inline `python -c` / `node -e`
- * code are scanned for infra tooling and credential handling and ask when they
- * mention any.
+ * Scripts and inline interpreters: the env layer already pins every process
+ * to the *-dev identity, so a script calling aws/kubectl/terragrunt is not a
+ * concern by itself. What is: code that redirects the credential chain away
+ * from the env layer (AWS_CONFIG_FILE, static keys, KUBECONFIG) or reads
+ * ~/.aws, ~/.kube or the SSO cache directly. Directly executed local scripts
+ * and inline `python -c` / `node -e` code are scanned for those and ask,
+ * naming the offending token and line.
  */
 
 import { isAbsolute, resolve } from "node:path";
 import { expandHome, SHELLS } from "../shell.ts";
 import { ask, type Command, type Finding, type RuleContext } from "../types.ts";
+import { CREDENTIAL_OVERRIDES } from "./aws-profile.ts";
 
-const SUSPICIOUS =
-	/-admin\b|AWS_CONFIG_FILE|AWS_SHARED_CREDENTIALS_FILE|AWS_ACCESS_KEY_ID|AWS_PROFILE|KUBECONFIG|\.aws\/|\.kube\/|sso\/cache|\b(aws|kubectl|helm|terragrunt|terraform|tofu)\b/;
-const SDK = /\bboto3\b|\bbotocore\b|aws-sdk|@aws-sdk|aws_sdk|\bkubernetes\b|\bk8s\b|\beks\b/i;
+const BYPASS = new RegExp(`${CREDENTIAL_OVERRIDES.join("|")}|KUBECONFIG|\\.aws/|\\.kube/|sso/cache`);
 
 const INTERPRETERS: Record<string, string[]> = {
 	python: ["-c"],
@@ -24,6 +26,15 @@ const INTERPRETERS: Record<string, string[]> = {
 };
 
 const MAX_SCRIPT_BYTES = 512 * 1024;
+
+function findBypass(text: string): { token: string; line: number } | undefined {
+	const lines = text.split("\n");
+	for (let i = 0; i < lines.length; i++) {
+		const match = BYPASS.exec(lines[i]);
+		if (match) return { token: match[0], line: i + 1 };
+	}
+	return undefined;
+}
 
 function scriptPath(command: Command): string | undefined {
 	if (SHELLS.has(command.name) || command.name === "source" || command.name === "." || command.name in INTERPRETERS) {
@@ -41,8 +52,12 @@ export function classifyScripts(command: Command, segment: string, ctx: RuleCont
 	if (interpreterFlags) {
 		const index = command.args.findIndex((arg) => interpreterFlags.includes(arg));
 		const code = index >= 0 ? command.args[index + 1] : undefined;
-		if (code && (SUSPICIOUS.test(code) || SDK.test(code)))
-			return ask(`inline ${command.name} code touches infra tooling or credentials`, fragment);
+		const hit = code ? findBypass(code) : undefined;
+		if (hit)
+			return ask(
+				`inline ${command.name} code references ${hit.token}, which can bypass the *-dev env layer`,
+				fragment,
+			);
 		if (index >= 0) return null;
 	}
 
@@ -53,7 +68,11 @@ export function classifyScripts(command: Command, segment: string, ctx: RuleCont
 	const content = ctx.readFile(path);
 	if (content === null) return null;
 	if (content.length > MAX_SCRIPT_BYTES) return ask(`script ${script} is too large to inspect`, fragment);
-	if (SUSPICIOUS.test(content) || SDK.test(content))
-		return ask(`script ${script} mentions infra tooling or credentials`, fragment);
+	const hit = findBypass(content);
+	if (hit)
+		return ask(
+			`script ${script} references ${hit.token} at line ${hit.line}, which can bypass the *-dev env layer`,
+			fragment,
+		);
 	return null;
 }

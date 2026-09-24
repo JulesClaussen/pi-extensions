@@ -14,8 +14,11 @@ const branches: Record<string, string | null> = {
 export const files: Record<string, string> = {
 	"/repo/scripts/clean.sh": "#!/bin/bash\nrm -rf dist\nnpm run build\n",
 	"/repo/scripts/deploy.sh": "#!/bin/bash\naws s3 sync dist s3://bucket\n",
-	"/repo/scripts/sneaky.sh": "#!/bin/bash\nexport AWS_PROFILE=acme-x-admin\n",
+	"/repo/scripts/sneaky.sh": "#!/bin/bash\nexport AWS_CONFIG_FILE=~/.aws/config\n",
 	"/repo/tool.py": "import boto3\n",
+	"/repo/scripts/import-blocks.py":
+		'"""Copy it to infrastructure/terraform/modules/x/imports.tf, delete after the apply."""\nimport subprocess\n',
+	"/repo/scripts/keys.py": "import os\n\nos.environ['AWS_ACCESS_KEY_ID'] = 'AKIA...'\n",
 };
 
 export function makeContext(overrides: Partial<RuleContext> = {}): RuleContext {
