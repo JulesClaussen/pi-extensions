@@ -6,6 +6,7 @@ Personal extensions for [pi](https://github.com/earendil-works/pi).
 | --- | --- |
 | `command-guard` | Pins the agent to the `*-dev` (DeveloperAccess) AWS role and gates GitHub, git, AWS, terragrunt, kubectl, helm and docker commands: reads run, risky actions ask, writes to infra are denied. |
 | `modes` | `apply` / `chat` / `plan` working modes: chat asks before every edit, write and non-read-only shell command; plan hands over to Plannotator. |
+| `subagent` | `subagent` tool: fans self-contained tasks out to parallel worker processes that inherit the parent's extensions and guards. |
 
 ## Install
 
@@ -75,6 +76,26 @@ Switch with `/mode [apply|chat|plan]`, `/mode` alone or `Ctrl+Alt+M` (cycles app
 | `plan` | Plannotator planning mode | Plannotator planning mode | run |
 
 In `chat` the model is also told that the user wants to discuss rather than act. Entering `plan` calls Plannotator's plan mode; approving the plan switches to `apply`, leaving Plannotator without approval falls back to `chat`. If Plannotator is not installed, `plan` degrades to `chat` with a warning. Without a UI (headless runs) anything that would ask is blocked.
+
+## subagent
+
+Registers a `subagent` tool that runs up to 12 tasks per call (6 at a time by default, `concurrency` to change) in parallel worker processes. Ask naturally, e.g. "open a PR bumping X in these 10 repos, one worker per repo".
+
+| Parameter | Default |
+| --- | --- |
+| `tasks[].task` | — self-contained instructions; the worker cannot see the conversation |
+| `tasks[].cwd` | current cwd (absolute, `~/…` or relative) |
+| `tasks[].model` | `anthropic/claude-opus-5-5` |
+| `tasks[].thinking` | `medium` |
+| `concurrency` | `6` |
+
+Each worker is a separate `pi --mode json -p --no-session` process started in its `cwd`, so it loads the same settings, packages and extensions as the parent (command-guard, MCP, web tools…) and the repository's `AGENTS.md`. It has an isolated context window and a worker system prompt that asks for a fixed report (status, changes, branch/commits, PR title and body, notes).
+
+- **Guards:** workers have no UI, so every command-guard or modes verdict that would ask is blocked. Workers can commit and push feature branches, but `gh pr create` and other asks fail: the parent opens PRs from the reports, with your approval.
+- **No recursion:** workers run with `PI_SUBAGENT_DEPTH=1` and do not register the tool.
+- **Usage:** progress streams per worker (last tool calls, tokens, cost); the tool result carries the summed usage so session totals include workers. Ctrl+C kills every worker.
+
+Change the defaults in `extensions/subagent/rules.ts` (`DEFAULT_MODEL`, `DEFAULT_THINKING`, `MAX_TASKS`, `DEFAULT_CONCURRENCY`, `WORKER_PROMPT`).
 
 ## Development
 

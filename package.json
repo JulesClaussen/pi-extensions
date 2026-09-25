@@ -1,7 +1,7 @@
 {
   "name": "@jules/pi-extensions",
   "version": "0.1.0",
-  "description": "Personal pi extensions: GitHub command guard.",
+  "description": "Personal pi extensions: command guard, working modes, worker subagents.",
   "type": "module",
   "keywords": ["pi-package", "pi-extension", "coding-agent"],
   "license": "MIT",
@@ -14,12 +14,18 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.13",
+    "@earendil-works/pi-ai": "^0.87.1",
+    "@earendil-works/pi-tui": "^0.87.1",
     "@types/node": "^24.0.0",
     "@typescript/native-preview": "latest",
-    "tsx": "^4.19.2"
+    "tsx": "^4.19.2",
+    "typebox": "^1.3.27"
   },
   "peerDependencies": {
-    "@earendil-works/pi-coding-agent": "*"
+    "@earendil-works/pi-ai": "*",
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*",
+    "typebox": "*"
   },
   "scripts": {
     "test": "node --import tsx --test 'extensions/**/*.test.ts'",

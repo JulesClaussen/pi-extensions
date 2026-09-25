@@ -74,7 +74,9 @@ export function classifyProtectedPaths(command: Command, segment: string, ctx: R
 	if (redirected) return deny(`redirection into protected path ${redirected}`, fragment);
 
 	const insideProtected = isProtected(ctx.cwd, ctx);
-	const referenced = referencesProtected([command.raw, ...command.args, ...Object.values(command.assignments)], ctx) ?? (insideProtected ? ctx.cwd : undefined);
+	const referenced =
+		referencesProtected([command.raw, ...command.args, ...Object.values(command.assignments)], ctx) ??
+		(insideProtected ? ctx.cwd : undefined);
 	if (!referenced) return null;
 
 	const inplace = INPLACE_FLAGS[command.name];
